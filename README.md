@@ -4,7 +4,7 @@
 - [x] Seed do Banco
 - [x] Introdução ao Next.js
 - [x] Tailwind e Shadcn
-- [] Git Hooks
+- [x] Git Hooks
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
