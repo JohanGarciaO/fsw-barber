@@ -8,10 +8,16 @@ import { Badge } from "./_components/ui/badge"
 import { Avatar, AvatarImage } from "./_components/ui/avatar"
 import { db } from "./_lib/prisma"
 import BarbershopItem from "./_components/barbershop-item"
+import Footer from "./_components/footer"
 
 const Home = async () => {
   // Chamar banco
   const barbershops = await db.barbershop.findMany({})
+  const popularBarbershops = await db.barbershop.findMany({
+    orderBy: {
+      name: "desc",
+    },
+  })
 
   return (
     <div>
@@ -77,7 +83,21 @@ const Home = async () => {
             ></BarbershopItem>
           ))}
         </div>
+
+        <h2 className="my-6 text-xs font-bold uppercase text-gray-400">
+          Populares
+        </h2>
+        <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
+          {popularBarbershops.map((barbershop) => (
+            <BarbershopItem
+              key={barbershop.id}
+              barbershop={barbershop}
+            ></BarbershopItem>
+          ))}
+        </div>
       </div>
+
+      <Footer />
     </div>
   )
 }
