@@ -10,27 +10,27 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Field, FieldError } from "./ui/field"
 
 const formSchema = z.object({
-  search: z.string().trim().min(1, "Digite algo para buscar"),
+  title: z.string().trim().min(1, "Digite algo para buscar"),
 })
 
 const Search = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      search: "",
+      title: "",
     },
   })
 
   const router = useRouter()
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    router.push(`/barbershops?search=${data.search}`)
+    router.push(`/barbershops?title=${data.title}`)
   }
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="flex gap-2">
       <Controller
-        name="search"
+        name="title"
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
