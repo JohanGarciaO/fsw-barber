@@ -109,14 +109,12 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
 
       await createBooking({
         serviceId: service.id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        userId: (data?.user as any).id,
         date: selectedDay,
       })
       toast.success("Reserva criada com sucesso!")
-    } catch (error) {
-      console.error(error)
-      toast.error("Erro ao criar reserva!")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.message)
     } finally {
       setSelectedDay(undefined)
       setSelectedTime(undefined)
