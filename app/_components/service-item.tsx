@@ -52,10 +52,16 @@ const TIME_LIST = [
   "18:00",
 ]
 
-const getTimeList = (bookings: Booking[]) => {
+const getTimeList = (bookings: Booking[], selectedDay: Date) => {
+  const now = new Date()
   return TIME_LIST.filter((time) => {
     const hour = Number(time.split(":")[0])
     const minute = Number(time.split(":")[1])
+
+    const slotDate = new Date(selectedDay)
+    slotDate.setHours(hour, minute, 0, 0)
+
+    const isFutureTime = slotDate > now
 
     const hasBookingOnCurrentTime = bookings.some(
       (booking) =>
@@ -63,7 +69,7 @@ const getTimeList = (bookings: Booking[]) => {
         booking.date.getMinutes() === minute,
     )
 
-    return !hasBookingOnCurrentTime
+    return isFutureTime && !hasBookingOnCurrentTime
   })
 }
 
@@ -213,20 +219,28 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
 
                 {selectedDay && (
                   <div className="flex gap-3 overflow-x-scroll border-b p-5 [&::-webkit-scrollbar]:hidden">
-                    {getTimeList(dayBookings).map((time) => (
-                      <Button
-                        key={time}
-                        variant={selectedTime === time ? "default" : "outline"}
-                        className="rounded-2xl"
-                        onClick={() =>
-                          time !== selectedTime
-                            ? handleTimeSelect(time)
-                            : handleTimeSelect(undefined)
-                        }
-                      >
-                        {time}
-                      </Button>
-                    ))}
+                    {getTimeList(dayBookings, selectedDay)?.length > 0 ? (
+                      getTimeList(dayBookings, selectedDay).map((time) => (
+                        <Button
+                          key={time}
+                          variant={
+                            selectedTime === time ? "default" : "outline"
+                          }
+                          className="rounded-2xl"
+                          onClick={() =>
+                            time !== selectedTime
+                              ? handleTimeSelect(time)
+                              : handleTimeSelect(undefined)
+                          }
+                        >
+                          {time}
+                        </Button>
+                      ))
+                    ) : (
+                      <p className="text-sm text-slate-400">
+                        Nenhum horário disponível
+                      </p>
+                    )}
                   </div>
                 )}
 
