@@ -20,6 +20,7 @@ export const createBooking = async (params: CreateBookingParams) => {
       data: { ...params, userId: (session.user as any).id },
     })
     revalidatePath("/barbershops/[id]")
+    revalidatePath("/bookings")
   } catch (error) {
     console.error(error)
     throw new Error("Erro ao criar reserva.")
