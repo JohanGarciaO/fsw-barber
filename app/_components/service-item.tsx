@@ -15,14 +15,15 @@ import {
 } from "./ui/sheet"
 import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
-import { useEffect, useState } from "react"
-import { format } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
+import { set } from "date-fns"
 import { createBooking } from "../_actions/create-booking"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Dialog, DialogTrigger } from "./ui/dialog"
 import LoginContent from "./login-dialog"
 import { getBookings } from "../_actions/get-bookings"
+import BookingSummary from "./booking-summary"
 
 interface ServiceItemProp {
   service: BarbershopService
@@ -93,6 +94,14 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
     })()
   }, [selectedDay, service.id])
 
+  const selectedDate = useMemo(() => {
+    if (!selectedDay || !selectedTime) return
+    return set(selectedDay, {
+      hours: Number(selectedTime.split(":")[0]),
+      minutes: Number(selectedTime.split(":")[1]),
+    })
+  }, [selectedDay, selectedTime])
+
   const handleDateSelected = (date: Date | undefined) => {
     setSelectedDay(date)
   }
@@ -103,19 +112,11 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
 
   const handleCreateBooking = async () => {
     try {
-      if (!selectedDay || !selectedTime) return
-
-      const hour = Number(selectedTime?.split(":")[0])
-      const minute = Number(selectedTime?.split(":")[1])
-
-      const newDate: Date = selectedDay
-      newDate.setHours(hour, minute)
-
-      setSelectedDay(newDate)
+      if (!selectedDate) return
 
       await createBooking({
         serviceId: service.id,
-        date: selectedDay,
+        date: selectedDate,
       })
       toast.success("Reserva criada com sucesso!")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -244,40 +245,13 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
                   </div>
                 )}
 
-                {selectedTime && selectedDay && (
+                {selectedDate && (
                   <div className="p-5">
-                    <Card className="p-0">
-                      <CardContent className="space-y-3 p-3">
-                        <div className="flex items-center justify-between">
-                          <h2 className="font-bold">{service.name}</h2>
-                          <p className="text-sm font-bold">
-                            {Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(Number(service.price))}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm text-gray-400">
-                          <h2>Data</h2>
-                          <p>
-                            {format(selectedDay, "d 'de' MMMM", {
-                              locale: ptBR,
-                            })}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm text-gray-400">
-                          <h2>Horário</h2>
-                          <p>{selectedTime}</p>
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm text-gray-400">
-                          <h2>Barbearia</h2>
-                          <p>{barbershop.name}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <BookingSummary
+                      barbershop={barbershop}
+                      service={service}
+                      selectedDate={selectedDate}
+                    />
                   </div>
                 )}
 
