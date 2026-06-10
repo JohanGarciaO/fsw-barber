@@ -24,6 +24,7 @@ import { Dialog, DialogTrigger } from "./ui/dialog"
 import LoginContent from "./login-dialog"
 import { getBookings } from "../_actions/get-bookings"
 import BookingSummary from "./booking-summary"
+import { useRouter } from "next/navigation"
 
 interface ServiceItemProp {
   service: BarbershopService
@@ -75,6 +76,7 @@ const getTimeList = (bookings: Booking[], selectedDay: Date) => {
 }
 
 const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
+  const router = useRouter()
   const { data } = useSession()
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | undefined>(
@@ -118,7 +120,12 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
         serviceId: service.id,
         date: selectedDate,
       })
-      toast.success("Reserva criada com sucesso!")
+      toast.success("Reserva criada com sucesso!", {
+        action: {
+          label: "Ver Agendamentos",
+          onClick: () => router.push("/bookings"),
+        },
+      })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message)
