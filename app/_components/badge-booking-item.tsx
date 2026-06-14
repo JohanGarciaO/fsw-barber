@@ -9,7 +9,7 @@ interface BadgeBookingItemProps {
 const BadgeBookingItem = ({ status }: BadgeBookingItemProps) => {
   return (
     <Badge
-      variant={orderStatusTranslate.variant[status]}
+      variant={orderStatusTranslate.variant[status] as "default"}
       className="w-fit rounded-xl"
     >
       {orderStatusTranslate.label[status]}
