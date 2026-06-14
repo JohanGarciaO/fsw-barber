@@ -24,7 +24,9 @@ import { Dialog, DialogTrigger } from "./ui/dialog"
 import LoginContent from "./login-dialog"
 import { getBookings } from "../_actions/get-bookings"
 import BookingSummary from "./booking-summary"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
+import { createStripeCheckout } from "../_actions/create-stripe-checkout"
+import { loadStripe } from "@stripe/stripe-js"
 
 interface ServiceItemProp {
   service: BarbershopService
@@ -76,7 +78,7 @@ const getTimeList = (bookings: Booking[], selectedDay: Date) => {
 }
 
 const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
-  const router = useRouter()
+  // const router = useRouter()
   const { data } = useSession()
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | undefined>(
@@ -116,16 +118,32 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProp) => {
     try {
       if (!selectedDate) return
 
-      await createBooking({
+      const booking = await createBooking({
         serviceId: service.id,
         date: selectedDate,
       })
-      toast.success("Reserva criada com sucesso!", {
-        action: {
-          label: "Ver Agendamentos",
-          onClick: () => router.push("/bookings"),
-        },
+
+      // Criar ordem
+      const { sessionId } = await createStripeCheckout({
+        serviceId: service.id,
+        bookingId: booking.id,
       })
+      if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) return
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY)
+
+      stripe?.redirectToCheckout({
+        sessionId: sessionId,
+      })
+
+      // toast.success(
+      //   "Seu pagamento foi aprovado e a reserva foi criada com sucesso!",
+      //   {
+      //     action: {
+      //       label: "Ver Agendamentos",
+      //       onClick: () => router.push("/bookings"),
+      //     },
+      //   },
+      // )
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.message)
