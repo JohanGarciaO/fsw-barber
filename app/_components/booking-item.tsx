@@ -2,7 +2,6 @@
 
 import { Prisma } from "@prisma/client"
 import { Avatar, AvatarImage } from "./ui/avatar"
-import { Badge } from "./ui/badge"
 import { Card, CardContent } from "./ui/card"
 import { format, isFuture } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -33,6 +32,7 @@ import { deleteBooking } from "../_actions/delete-booking"
 import { toast } from "sonner"
 import { useState } from "react"
 import BookingSummary from "./booking-summary"
+import BadgeBookingItem from "./badge-booking-item"
 
 interface BookingItemProps {
   booking: Prisma.BookingGetPayload<{
@@ -49,7 +49,7 @@ interface BookingItemProps {
 const BookingItem = ({ booking }: BookingItemProps) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const { barbershop } = booking.service
-  const isConfirmed = isFuture(booking.date)
+  const isActive = isFuture(booking.date)
   const handleCancelBooking = async () => {
     try {
       await deleteBooking(booking.id)
@@ -72,12 +72,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <CardContent className="flex justify-between p-0">
               {/* ESQUERDA */}
               <div className="flex flex-col gap-2 py-5 pl-5">
-                <Badge
-                  variant={isConfirmed ? "default" : "secondary"}
-                  className="w-fit rounded-xl"
-                >
-                  {isConfirmed ? "Confirmado" : "Finalizado"}
-                </Badge>
+                <BadgeBookingItem status={booking.status} />
                 <h3 className="font-semibold">{booking.service.name}</h3>
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
@@ -128,12 +123,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
           </div>
 
           <div className="mt-6">
-            <Badge
-              variant={isConfirmed ? "default" : "secondary"}
-              className="w-fit rounded-xl"
-            >
-              {isConfirmed ? "Confirmado" : "Finalizado"}
-            </Badge>
+            <BadgeBookingItem status={booking.status} />
             <div className="mb-3 mt-6">
               <BookingSummary
                 barbershop={barbershop}
@@ -156,7 +146,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
                 </Button>
               </SheetClose>
 
-              {isConfirmed && (
+              {isActive && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <div className="w-full items-center text-center">
