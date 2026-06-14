@@ -97,4 +97,17 @@ model Booking {
   date      DateTime
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+  status    OrderStatus       @default(PENDING)
+}
+
+enum OrderStatus {
+  PENDING
+  PAYMENT_CONFIRMED
+  PAYMENT_FAILED
+  FINISHED
+}
+
+enum ConsumptionMethod {
+  TAKEWAY
+  DINE_IN
 }
